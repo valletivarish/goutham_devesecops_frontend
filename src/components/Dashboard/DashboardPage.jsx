@@ -154,7 +154,7 @@ const summaryCards = [
     isCurrency: false,
   },
   {
-    key: 'goals',
+    key: 'totalGoals',
     label: 'Goals',
     icon: FaBullseye,
     bgColor: '#ede9fe',

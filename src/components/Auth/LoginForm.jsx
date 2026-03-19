@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaSignInAlt, FaUser, FaLock, FaFlask } from 'react-icons/fa';
+import { FaSignInAlt, FaUser, FaLock, FaFlask, FaChevronRight } from 'react-icons/fa';
 import { loginSchema } from '../../utils/validators';
 import { useAuth } from '../../context/AuthContext';
 import ErrorMessage from '../common/ErrorMessage';
@@ -127,22 +127,39 @@ const s = {
   },
   line: { flex: 1, height: '1px', backgroundColor: '#e2e8f0' },
   or: { fontSize: '12px', color: '#94a3b8', fontWeight: '500', textTransform: 'uppercase' },
-  demo: {
+  demoSection: {
+    marginTop: '4px',
+  },
+  demoTitle: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#64748b',
+    textAlign: 'center',
+    marginBottom: '10px',
+  },
+  demoCard: {
     width: '100%',
-    padding: '11px',
+    padding: '10px 14px',
     borderRadius: '10px',
     border: '2px dashed #cbd5e1',
     backgroundColor: '#f8fafc',
     color: '#475569',
-    fontSize: '14px',
-    fontWeight: '600',
+    fontSize: '13px',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     gap: '8px',
+    marginBottom: '8px',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
   },
-  demoCreds: { fontSize: '12px', color: '#94a3b8', textAlign: 'center', marginTop: '8px' },
+  demoInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  demoName: { fontWeight: '600', fontSize: '14px' },
+  demoCreds: { fontSize: '11px', color: '#94a3b8' },
   footer: { textAlign: 'center', marginTop: '26px', fontSize: '14px', color: '#64748b' },
   link: { color: '#2563eb', textDecoration: 'none', fontWeight: '600' },
 };
@@ -172,9 +189,15 @@ const LoginForm = () => {
     }
   };
 
-  const handleDemoLogin = () => {
-    setValue('username', 'demo');
-    setValue('password', 'demo1234');
+  const demoUsers = [
+    { username: 'demo', password: 'demo1234', label: 'Demo User', desc: 'Full demo data' },
+    { username: 'john', password: 'john1234', label: 'John', desc: 'Basic account' },
+    { username: 'sarah', password: 'sarah1234', label: 'Sarah', desc: 'Basic account' },
+  ];
+
+  const handleDemoLogin = (user) => {
+    setValue('username', user.username);
+    setValue('password', user.password);
     handleSubmit(onSubmit)();
   };
 
@@ -250,16 +273,27 @@ const LoginForm = () => {
             <div style={s.line} />
           </div>
 
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            disabled={isSubmitting}
-            style={{ ...s.demo, ...(isSubmitting ? s.off : {}) }}
-          >
-            <FaFlask size={14} />
-            Try with Demo Account
-          </button>
-          <p style={s.demoCreds}>demo / demo1234</p>
+          <div style={s.demoSection}>
+            <p style={s.demoTitle}>Click any account to auto-fill credentials</p>
+            {demoUsers.map((user) => (
+              <button
+                key={user.username}
+                type="button"
+                onClick={() => handleDemoLogin(user)}
+                disabled={isSubmitting}
+                style={{ ...s.demoCard, ...(isSubmitting ? s.off : {}) }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <FaFlask size={14} color="#94a3b8" />
+                  <div style={s.demoInfo}>
+                    <span style={s.demoName}>{user.label}</span>
+                    <span style={s.demoCreds}>{user.username} / {user.password}</span>
+                  </div>
+                </div>
+                <FaChevronRight size={12} color="#94a3b8" />
+              </button>
+            ))}
+          </div>
 
           <p style={s.footer}>
             Don&apos;t have an account?{' '}
