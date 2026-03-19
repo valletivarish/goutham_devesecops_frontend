@@ -38,7 +38,7 @@ jobs:
       - name: Build production bundle
         run: npm run build
         env:
-          VITE_API_BASE_URL: http://finance-tracker-backend:8080/api
+          VITE_API_BASE_URL: http://${{ secrets.EC2_HOST }}:8080/api
 
       # ------------------------------------------------------------------
       # 4. Configure AWS Credentials
@@ -48,26 +48,19 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # ------------------------------------------------------------------
       # 5. Deploy to S3
       # ------------------------------------------------------------------
-      - name: Get S3 Bucket Name
-        id: s3
-        run: |
-          BUCKET=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'finance-tracker-frontend')].Name" --output text)
-          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
-          echo "S3 Bucket: $BUCKET"
-
       - name: Sync build to S3
         run: |
-          aws s3 sync dist/ s3://${{ steps.s3.outputs.bucket }} --delete
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
       # ------------------------------------------------------------------
       # 6. Verify Deployment
       # ------------------------------------------------------------------
       - name: Verify S3 website
         run: |
-          WEBSITE_URL=$(aws s3api get-bucket-website --bucket ${{ steps.s3.outputs.bucket }} 2>/dev/null && echo "Website hosting configured" || echo "Website hosting check completed")
-          echo "Deployment complete to S3 bucket: ${{ steps.s3.outputs.bucket }}"
+          WEBSITE_URL=$(aws s3api get-bucket-website --bucket ${{ secrets.S3_BUCKET_NAME }} 2>/dev/null && echo "Website hosting configured" || echo "Website hosting check completed")
+          echo "Deployment complete to S3 bucket: ${{ secrets.S3_BUCKET_NAME }}"
