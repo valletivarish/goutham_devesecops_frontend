@@ -9,7 +9,19 @@ const ENDPOINT = '/forecast';
 export const getSpendingForecast = async () => {
   try {
     const response = await api.get(`${ENDPOINT}/spending`);
-    return response.data;
+    const data = response.data;
+    return {
+      historicalData: (data.historicalData || []).map((item) => ({
+        month: item.month,
+        amount: item.amount ?? item.predictedAmount,
+      })),
+      predictedData: (data.predictedData || data.predictions || []).map((item) => ({
+        month: item.month,
+        amount: item.amount ?? item.predictedAmount,
+      })),
+      trend: data.trend,
+      confidenceScore: data.confidenceScore ?? data.confidence,
+    };
   } catch (error) {
     throw error.response?.data || { message: 'Failed to fetch spending forecast.' };
   }
